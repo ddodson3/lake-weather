@@ -1,9 +1,7 @@
 package com.dandodson.weather;
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DateTimeException;
@@ -14,12 +12,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
-import java.util.TreeSet;
 
 public class MeanMedian {
-	
-	private static double median;
-	private static double mean;
+
 	
 	public static void main(String[] args) {
 		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("M-d-yyyy");

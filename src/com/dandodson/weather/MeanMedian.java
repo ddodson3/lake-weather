@@ -52,7 +52,6 @@ public class MeanMedian {
 	
 	public static ArrayList<Double> getData(LocalDateTime start, LocalDateTime end) throws IOException {
 		ArrayList<Double> results = new ArrayList<Double>();
-//			TODO: check start date and end date differently
 			for (LocalDate date = start.toLocalDate(); 
 					date.isBefore(end.toLocalDate()) || date.isEqual(end.toLocalDate()); 
 					date = date.plusDays(1)) {
@@ -65,12 +64,20 @@ public class MeanMedian {
 				URL dayOfData = new URL(url);
 				Scanner in = new Scanner(dayOfData.openStream()); 
 				while (in.hasNext()) {
-					String lineDate = in.next().replace("_", "-");
-					LocalDateTime time = LocalDate.parse(lineDate).atTime(LocalTime.parse(in.next()));
-					if (time.isAfter(start) && time.isBefore(end)) {
-						results.add(in.nextDouble());
+					//check time only if date is at start or end of range
+					if (date.isEqual(start.toLocalDate()) || date.isEqual(end.toLocalDate())) {
+						String lineDate = in.next().replace("_", "-");
+						String lineTime = in.next();
+						LocalDateTime time = LocalDate.parse(lineDate).atTime(LocalTime.parse(lineTime));
+						if (time.isAfter(start) && time.isBefore(end)) {
+							results.add(in.nextDouble());
+						} else {
+							in.next();
+						}
 					} else {
 						in.next();
+						in.next();
+						results.add(in.nextDouble());
 					}
 				}
 				in.close();

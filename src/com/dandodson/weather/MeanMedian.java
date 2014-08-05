@@ -19,35 +19,32 @@ public class MeanMedian {
 	public static void main(String[] args) {
 		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("M-d-yyyy");
 		DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("h:m a");
-		Scanner keyboard = new Scanner (System.in);
-		System.out.print("Enter Start Date (mm-dd-yyyy): ");
-		LocalDate startDate = LocalDate.parse(keyboard.nextLine(), dateFormat);
-		System.out.print("Enter Start Time (hh:mm am/pm): ");
-		LocalTime startTime = LocalTime.parse(keyboard.nextLine().toUpperCase(),timeFormat);
-		LocalDateTime start = startDate.atTime(startTime);
-//		TODO: Error handling
-		System.out.print("Enter End Date (mm-dd-yyyy): ");
-		LocalDate endDate = LocalDate.parse(keyboard.nextLine(), dateFormat);
-		System.out.print("Enter End Time (hh:mm am/pm): ");
-		LocalTime endTime = LocalTime.parse(keyboard.nextLine().toUpperCase(),timeFormat);
-		LocalDateTime end = endDate.atTime(endTime);
-		keyboard.close();
-		
-
-		try {
-			if (end.isAfter(start)) {
-				ArrayList<Double> results = getData(start, end);
-				System.out.printf("Mean: %.1f\n", mean(results));
-				System.out.printf("Median: %.1f\n", median(results));
-			} else {
-				System.out.println("End is before start date.");
+		try (Scanner keyboard = new Scanner (System.in)) {
+			System.out.print("Enter Start Date (mm-dd-yyyy): ");
+			LocalDate startDate = LocalDate.parse(keyboard.nextLine(), dateFormat);
+			System.out.print("Enter Start Time (hh:mm am/pm): ");
+			LocalTime startTime = LocalTime.parse(keyboard.nextLine().toUpperCase(),timeFormat);
+			LocalDateTime start = startDate.atTime(startTime);
+			System.out.print("Enter End Date (mm-dd-yyyy): ");
+			LocalDate endDate = LocalDate.parse(keyboard.nextLine(), dateFormat);
+			System.out.print("Enter End Time (hh:mm am/pm): ");
+			LocalTime endTime = LocalTime.parse(keyboard.nextLine().toUpperCase(),timeFormat);
+			LocalDateTime end = endDate.atTime(endTime);
+			try {
+				if (end.isAfter(start)) {
+					ArrayList<Double> results = getData(start, end);
+					System.out.printf("Mean: %.1f\n", mean(results));
+					System.out.printf("Median: %.1f\n", median(results));
+				} else {
+					System.out.println("End is before start date.");
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (DateTimeException e) {
+			System.err.println("Cannot recognize entry.");
 		}
-		
-		
 	}
 	
 	public static ArrayList<Double> getData(LocalDateTime start, LocalDateTime end) throws IOException {

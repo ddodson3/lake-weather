@@ -2,7 +2,6 @@ package com.dandodson.weather;
 
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -30,26 +29,21 @@ public class MeanMedian {
 			System.out.print("Enter End Time (hh:mm am/pm): ");
 			LocalTime endTime = LocalTime.parse(keyboard.nextLine().toUpperCase(),timeFormat);
 			LocalDateTime end = endDate.atTime(endTime);
-			try {
-				if (end.isAfter(start)) {
-					ArrayList<Double> results = getData(start, end);
-					System.out.printf("Mean: %.1f\n", mean(results));
-					System.out.printf("Median: %.1f\n", median(results));
-				} else {
-					System.out.println("End is before start date.");
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (end.isAfter(start)) {
+				ArrayList<Double> results = getData(start, end);
+				System.out.printf("Mean: %.1f\n", mean(results));
+				System.out.printf("Median: %.1f\n", median(results));
+			} else {
+				System.out.println("End is before start date.");
 			}
 		} catch (DateTimeException e) {
 			System.err.println("Cannot recognize entry.");
 		}
 	}
 	
-	public static ArrayList<Double> getData(LocalDateTime start, LocalDateTime end) throws IOException {
+	public static ArrayList<Double> getData(LocalDateTime start, LocalDateTime end) {
 		ArrayList<Double> results = new ArrayList<Double>();
-			for (LocalDate date = start.toLocalDate(); 
+			for (LocalDate date = start.toLocalDate();
 					date.isBefore(end.toLocalDate()) || date.isEqual(end.toLocalDate()); 
 					date = date.plusDays(1)) {
 				String url = "http://lpo.dt.navy.mil/data/DM/";
@@ -58,26 +52,35 @@ public class MeanMedian {
 				url += String.format("%02d", date.getMonthValue()) + "_";
 				url += String.format("%02d", date.getDayOfMonth())+ "/";
 				url += "Air_Temp";
-				URL dayOfData = new URL(url);
-				Scanner in = new Scanner(dayOfData.openStream()); 
-				while (in.hasNext()) {
-					//check time only if date is at start or end of range
-					if (date.isEqual(start.toLocalDate()) || date.isEqual(end.toLocalDate())) {
-						String lineDate = in.next().replace("_", "-");
-						String lineTime = in.next();
-						LocalDateTime time = LocalDate.parse(lineDate).atTime(LocalTime.parse(lineTime));
-						if (time.isAfter(start) && time.isBefore(end)) {
-							results.add(in.nextDouble());
-						} else {
-							in.next();
+				Scanner in = null;
+				try {
+					URL dayOfData = new URL(url);
+					in = new Scanner(dayOfData.openStream());
+						while (in.hasNext()) {
+							//check time only if date is at start or end of range
+							if (date.isEqual(start.toLocalDate()) || date.isEqual(end.toLocalDate())) {
+								String lineDate = in.next().replace("_", "-");
+								String lineTime = in.next();
+								LocalDateTime time = LocalDate.parse(lineDate).atTime(LocalTime.parse(lineTime));
+								if (time.isAfter(start) && time.isBefore(end)) {
+									results.add(in.nextDouble());
+								} else {
+									in.next();
+								}
+							} else {
+								in.next();
+								in.next();
+								results.add(in.nextDouble());
+							}
 						}
-					} else {
-						in.next();
-						in.next();
-						results.add(in.nextDouble());
-					}
+				} catch (IOException e) {
+					System.err.println(url + " cannot be found.");
+				} catch (Exception e) {
+					System.err.println("Error reading " + url);
+				} finally {
+					if (in != null)
+						in.close();
 				}
-				in.close();
 			}
 		return (results);
 	}

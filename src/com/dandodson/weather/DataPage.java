@@ -1,10 +1,13 @@
 package com.dandodson.weather;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class DataPage {
 	private URL page;
@@ -13,18 +16,32 @@ public class DataPage {
 	private LocalDateTime dateTime;
 	
 	
-	public DataPage(LocalDate date) throws MalformedURLException {
+	public DataPage(LocalDate date) throws IOException {
 		page = new URL(parseURL(date));
+		Scanner in = new Scanner(page.openStream());
+		data = new ArrayList<Double>();
+		while (in.hasNext()) {
+			if(in.hasNextDouble())
+				data.add(in.nextDouble());
+			else
+				in.next();
+		}
+		in.close();
 		
 	}
 	public DataPage(LocalDateTime dateTime) throws MalformedURLException {
 		LocalDate date = dateTime.toLocalDate();
+		LocalTime time = dateTime.toLocalTime();
 		page = new URL(parseURL(date)) ;
 		
 	}
 	
 	public URL getURL() {
 		return page;
+	}
+	
+	public ArrayList<Double> getData() {
+		return data;
 	}
 
 	private String parseURL(LocalDate date) {
